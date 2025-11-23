@@ -32,7 +32,6 @@ while true; do
 done
 disco="${discos[$opcion]}"
 echo
-echo
 echo "<< DISCO SELECCIONADO: $disco >>"
 echo
 echo
