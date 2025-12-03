@@ -8,7 +8,7 @@ echo
 echo
 echo
 echo "======================================================"
-echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.0"
+echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.1"
 echo "======================================================"
 echo
 echo
@@ -132,6 +132,12 @@ echo
 echo
 echo
 
+# ACTUALIZAR CLAVES
+pacman-key --init
+pacman-key --populate archlinux
+pacman -Syy
+pacman -S archlinux-keyring
+
 # INSTALAR SISTEMA BASE 
 while true; do
     if pacstrap -K /mnt base linux linux-firmware networkmanager intel-ucode sudo btrfs-progs; then
@@ -186,10 +192,11 @@ hwclock --systohc
 echo
 echo
 echo
+pacman -Syu terminus-font
 sed -i "s/^#es_CO.UTF-8/es_CO.UTF-8/" /etc/locale.gen
 locale-gen
 echo "LANG=es_CO.UTF-8" > /etc/locale.conf
-echo "KEYMAP=es" > /etc/vconsole.conf
+echo -e "KEYMAP=es\nFONT=ter-132n" > /etc/vconsole.conf
 
 # CREAR NOMBRE Y CONTRASEÑA DEL SISTEMA
 echo "$HOST_NAME" > /etc/hostname
@@ -253,7 +260,7 @@ UUID=$(blkid -s UUID -o value $part2)
 cat > /boot/EFI/limine/limine.conf <<CFG
 timeout: 7
 
-interface_branding: ${HOST_NAME} Selector
+interface_branding: ${HOST_NAME} menu
 interface_branding_color: 2
 
 term_background: 1c1c1f
