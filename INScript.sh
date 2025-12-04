@@ -8,7 +8,7 @@ echo
 echo
 echo
 echo "======================================================"
-echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.1"
+echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.3"
 echo "======================================================"
 echo
 echo
@@ -136,7 +136,7 @@ echo
 pacman-key --init
 pacman-key --populate archlinux
 pacman -Syy
-pacman -S archlinux-keyring
+pacman -S archlinux-keyring --noconfirm
 
 # INSTALAR SISTEMA BASE 
 while true; do
@@ -192,7 +192,7 @@ hwclock --systohc
 echo
 echo
 echo
-pacman -Syu terminus-font
+pacman -Syu terminus-font --noconfirm
 sed -i "s/^#es_CO.UTF-8/es_CO.UTF-8/" /etc/locale.gen
 locale-gen
 echo "LANG=es_CO.UTF-8" > /etc/locale.conf
