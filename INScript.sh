@@ -8,7 +8,7 @@ echo
 echo
 echo
 echo "======================================================"
-echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.3"
+echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.2"
 echo "======================================================"
 echo
 echo
