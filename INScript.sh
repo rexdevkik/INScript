@@ -5,7 +5,7 @@ set -e
 
 # TITULO DEL SCRIPT
 t1="======================================================"
-t2="   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.3.0"
+t2="   SCRIPT DE INSTALACION ARCH LINUX INScript v1.3.0"
 t3="======================================================"
 
 # INICIO DEL SCRIPT
