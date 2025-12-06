@@ -3,18 +3,22 @@
 # DETENER EL SCRIPT SI ALGO FALLA
 set -e
 
+# TITULO DEL SCRIPT
+t1="======================================================"
+t2="   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.3.0"
+t3="======================================================"
+
 # INICIO DEL SCRIPT
+clear
 echo
-echo
-echo
-echo "======================================================"
-echo "   SCRIPT DE INSTALACION ARCH LINUX INScript-v1.2.2"
-echo "======================================================"
-echo
-echo
+echo $t1
+echo "$t2"
+echo $t3
 echo
 
 # DETECTAR Y SELECCIONAR DISCO DE INSTALACION
+echo ">> DISCO DE INSTALACION"
+echo
 mapfile -t discos < <(lsblk -dpno NAME,TYPE | grep "disk" | awk '{print $1}')
 echo "==> Seleccione el disco donde desea instalar:"
 echo
@@ -31,11 +35,7 @@ while true; do
     fi
 done
 disco="${discos[$opcion]}"
-echo
-echo "<< DISCO SELECCIONADO: $disco >>"
-echo
-echo
-echo
+clear
 
 # FUNCION PARA ASIGNAR CONTRASEÑA
 contra_segura() {
@@ -50,25 +50,37 @@ contra_segura() {
         elif [[ "$pass1" != "$pass2" ]]; then
             echo "<< ERROR LA CONTRASEÑA NO COINCIDE >>"
         else
-            eval "$2='$pass1'"
+            printf -v "$2" '%s' "$pass1"
             break
         fi
     done
 }
 
-# CREAR NOMBRE Y CONTRASEÑA DE SISTEMA
+# CREAR NOMBRE DE HOST Y CONTRASEÑA DE ROOT
+echo
+echo $t1
+echo "$t2"
+echo $t3
+echo
+echo ">> NOMBRE DE HOST Y CONTRASEÑA DE ROOT"
+echo
 while true; do
-    read -p "==> Ingrese el nombre de equipo: " HOST_NAME
+    read -p "==> Ingrese el nombre de host: " HOST_NAME
     [[ -n "$HOST_NAME" ]] && break
-    echo "<< ERROR EL NOMBRE DE EQUIPO NO PUEDE ESTAR VACIO >>"
+    echo "<< ERROR EL NOMBRE DE HOST NO PUEDE ESTAR VACIO >>"
 done
 echo
 contra_segura "ROOT" ROOT_PASS
-echo
-echo
-echo
+clear
 
-# CREAR NOMBRE Y CONTRASEÑA DE USUARIO 
+# CREAR NOMBRE DE USUARIO Y CONTRASEÑA
+echo
+echo $t1
+echo "$t2"
+echo $t3
+echo
+echo ">> NOMBRE DE USUARIO Y CONTRASEÑA"
+echo
 while true; do
     read -p "==> Ingrese el nombre de usuario: " USER_NAME
     [[ -n "$USER_NAME" ]] && break
@@ -76,22 +88,75 @@ while true; do
 done
 echo
 contra_segura "usuario $USER_NAME" USER_PASS
+clear
 
 # CONFIRMAR INSTALACION CONTROLADORES GRAFICOS AMD
 echo
+echo $t1
+echo "$t2"
+echo $t3
 echo
+echo ">> INSTALAR CONTROLADORES GRAFICOS PARA AMD"
 echo
 echo "==> ¿Desea instalar controladores graficos para AMD?"
 echo
 echo "  [1] Sí"
 echo "  [2] No"
 echo
-read -p "==> Elija su opción: " opcion
-echo
-echo
-echo
+read -p "==> Elija su opción: " opcion2
+clear
+
+# MOSTRAR RESUMEN Y CONFIRMAR
+while true; do
+    echo
+    echo $t1
+    echo "$t2"
+    echo $t3
+    echo
+    echo ">> INFORMACIÓN INGRESADA"
+    echo
+    echo "-> Disco seleccionado:"
+    echo "   $disco"
+    echo
+    echo "-> Nombre de host:"
+    echo "   $HOST_NAME"
+    echo
+    echo "-> Usuario:"
+    echo "   $USER_NAME"
+    echo
+    echo "-> Instalar controladores AMD:"
+    if [[ "$opcion2" == "1" ]]; then
+        echo "   Sí"
+    else
+        echo "   No"
+    fi
+    echo
+    echo "=============================================="
+    echo
+    echo "==> ¿Es correcta esta información?"
+    echo
+    echo "   [1] Sí, continuar con la instalación"
+    echo "   [2] No, volver a ingresar datos"
+    echo
+    read -p "==> Seleccione una opción: " confirm
+    case "$confirm" in
+        1)
+            break
+            ;;
+        2)
+            exec "$0"
+            ;;
+        *)
+            clear
+            ;;
+    esac
+done
+clear
 
 # FORMATEAR Y CREAR LAS NUEVAS PARTICIONES
+echo
+echo
+echo
 wipefs -a $disco
 parted -s -a optimal $disco mklabel gpt
 parted -s -a optimal $disco mkpart ESP fat32 1MiB 2049MiB
@@ -136,16 +201,12 @@ echo
 pacman-key --init
 pacman-key --populate archlinux
 pacman -Syy
-pacman -S archlinux-keyring --noconfirm
 
 # INSTALAR SISTEMA BASE 
 while true; do
     if pacstrap -K /mnt base linux linux-firmware networkmanager intel-ucode sudo btrfs-progs; then
         echo
-        echo
         echo "<< PAQUETES INSTALADOS CORRECTAMENTE >>"
-        echo
-        echo
         break
     else
         echo
@@ -168,7 +229,7 @@ done
 # GENERAR ARCHIVO FSTAB
 genfstab -U /mnt >> /mnt/etc/fstab
 
-export ROOT_PASS USER_PASS USER_NAME HOST_NAME disco part1 part2 opcion
+export ROOT_PASS USER_PASS USER_NAME HOST_NAME disco part1 part2 opcion2
 
 # CREAR SCRIPT PARA LA POST INSTALACION
 cat > /mnt/PostInScript.sh << 'END'
@@ -182,7 +243,7 @@ HOST_NAME="$HOST_NAME"
 disco="$disco"
 part1="$part1"
 part2="$part2"
-opcion="$opcion"
+opcion2="$opcion2"
 
 # CONFIGURAR ZONA HORARIA
 ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
@@ -289,7 +350,7 @@ sed -i '/#\[multilib\]/ { s/#\[multilib\]/[multilib]/; n; s/#Include = /Include 
 echo
 echo
 echo
-if [[ "$opcion" == "1" ]]; then
+if [[ "$opcion2" == "1" ]]; then
     while true; do
         if pacman -Syu --noconfirm mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu; then
             break
@@ -320,7 +381,7 @@ END
 chmod +x /mnt/PostInScript.sh
 
 # ABRIR CHROOT Y EJECUTAR EL SCRIPT DE POST INSTALACION
-env ROOT_PASS="$ROOT_PASS" USER_PASS="$USER_PASS" USER_NAME="$USER_NAME" HOST_NAME="$HOST_NAME" disco="$disco" part1="$part1" part2="$part2" opcion="$opcion" arch-chroot /mnt /PostInScript.sh
+env ROOT_PASS="$ROOT_PASS" USER_PASS="$USER_PASS" USER_NAME="$USER_NAME" HOST_NAME="$HOST_NAME" disco="$disco" part1="$part1" part2="$part2" opcion2="$opcion2" arch-chroot /mnt /PostInScript.sh
 
 # DESMONTAR AL FINALIZAR LA INSTALACION 
 umount -R /mnt
@@ -333,8 +394,6 @@ echo "========================="
 echo "   INSTALACION EXITOSA"
 echo "========================="
 echo
-echo
-echo
 
 # REINICIAR
 echo "==> ¿Desea reiniciar ahora?"
@@ -343,17 +402,15 @@ echo "  [1] Sí, reiniciar ahora"
 echo "  [2] No, salir sin reiniciar"
 echo
 while true; do
-    read -p "==> Elija su opción: " opcion2
-    case "$opcion2" in
+    read -p "==> Elija su opción: " opcion3
+    case "$opcion3" in
         1)
-            echo
-            echo "<< REINICIANDO SISTEMA... >>"
+            clear
             reboot
             ;;
         2)
             echo
             echo "<< INSTALACION FINALIZADA, PUEDE REINICIAR MANUALMENTE >>"
-            echo
             echo
             echo
             exit 0
