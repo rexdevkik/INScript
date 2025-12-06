@@ -405,7 +405,6 @@ while true; do
     read -p "==> Elija su opción: " opcion3
     case "$opcion3" in
         1)
-            clear
             reboot
             ;;
         2)
