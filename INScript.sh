@@ -5,7 +5,7 @@ set -e
 
 # TITULO DEL SCRIPT
 t1="======================================================"
-t2="   SCRIPT DE INSTALACION ARCH LINUX INScript v1.3.0"
+t2="   SCRIPT DE INSTALACION ARCH LINUX INScript v1.4.0"
 t3="======================================================"
 
 # INICIO DEL SCRIPT
@@ -198,6 +198,7 @@ echo
 echo
 
 # ACTUALIZAR CLAVES
+pacman -Sy archlinux-keyring --noconfirm
 pacman-key --init
 pacman-key --populate archlinux
 pacman -Syy
@@ -321,25 +322,36 @@ UUID=$(blkid -s UUID -o value $part2)
 cat > /boot/EFI/limine/limine.conf <<CFG
 timeout: 7
 
-interface_branding: ${HOST_NAME} menu
-interface_branding_color: 2
-
-term_background: 1c1c1f
-term_background_bright: 2e2e32
-backdrop: 1c1c1f
-
-term_palette: 241f31;c01c28;2ec27e;f5c211;1e78e4;9841bb;0ab9dc;c0bfbc
-term_palette_bright: 5e5c64;ed333b;57e389;f8e45c;51a1ff;c061cb;4fd2fd;f6f5f4
-
-term_foreground: f6f5f4
-term_foreground_bright: f6f5f4
+interface_branding: ${HOST_NAME} start
 
 /Arch Linux
   protocol: linux
   path: boot():/vmlinuz-linux
+  module_path: boot():/intel-ucode.img
   module_path: boot():/initramfs-linux.img
   cmdline: quiet root=UUID=${UUID} rw rootflags=subvol=@
+
+/Arch Linux (Fallback)
+  protocol: linux
+  path: boot():/vmlinuz-linux
+  module_path: boot():/intel-ucode.img
+  module_path: boot():/initramfs-linux-fallback.img
+  cmdline: quiet root=UUID=${UUID} rw rootflags=subvol=@
 CFG
+
+mkdir -p /etc/pacman.d/hooks
+cat > /etc/pacman.d/hooks/99-limine.hook <<HKS
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = limine
+
+[Action]
+Description = Deploying Limine after upgrade...
+When = PostTransaction
+Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/limine/
+HKS
 
 # CONFIGURAR PACMAN 
 sed -i "s/^#Color/Color\nILoveCandy/" /etc/pacman.conf
@@ -352,7 +364,7 @@ echo
 echo
 if [[ "$opcion2" == "1" ]]; then
     while true; do
-        if pacman -Syu --noconfirm mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu; then
+        if pacman -Syu --noconfirm mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon; then
             break
         else
             echo
