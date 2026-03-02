@@ -330,13 +330,6 @@ interface_branding: ${HOST_NAME} start
   module_path: boot():/intel-ucode.img
   module_path: boot():/initramfs-linux.img
   cmdline: quiet root=UUID=${UUID} rw rootflags=subvol=@
-
-/Arch Linux (Fallback)
-  protocol: linux
-  path: boot():/vmlinuz-linux
-  module_path: boot():/intel-ucode.img
-  module_path: boot():/initramfs-linux-fallback.img
-  cmdline: quiet root=UUID=${UUID} rw rootflags=subvol=@
 CFG
 
 mkdir -p /etc/pacman.d/hooks
@@ -348,7 +341,7 @@ Type = Package
 Target = limine
 
 [Action]
-Description = Deploying Limine after upgrade...
+Description = Actualizando Limine...
 When = PostTransaction
 Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI /boot/EFI/limine/
 HKS
