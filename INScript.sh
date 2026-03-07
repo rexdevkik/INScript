@@ -5,7 +5,7 @@ set -e
 
 # TITULO DEL SCRIPT
 t1="======================================================"
-t2="   SCRIPT DE INSTALACION ARCH LINUX INScript v1.4.0"
+t2="   SCRIPT DE INSTALACION ARCH LINUX INScript v1.4.1"
 t3="======================================================"
 
 # INICIO DEL SCRIPT
@@ -322,12 +322,11 @@ UUID=$(blkid -s UUID -o value $part2)
 cat > /boot/EFI/limine/limine.conf <<CFG
 timeout: 7
 
-interface_branding: ${HOST_NAME} start
+interface_branding: ${HOST_NAME}
 
 /Arch Linux
   protocol: linux
   path: boot():/vmlinuz-linux
-  module_path: boot():/intel-ucode.img
   module_path: boot():/initramfs-linux.img
   cmdline: quiet root=UUID=${UUID} rw rootflags=subvol=@
 CFG
